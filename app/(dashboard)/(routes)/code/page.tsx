@@ -1,7 +1,7 @@
 'use client'
 import axios from 'axios'
 import Heading from '@/components/heading'
-import { MessagesSquare } from 'lucide-react'
+import { Code } from 'lucide-react'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -18,10 +18,11 @@ import Loader from '@/components/loader'
 import { cn } from '@/lib/utils'
 import UserAvatar from '@/components/user-avatar'
 import BotAvatar from '@/components/bot-avatar'
-
+import ReactMarkdown from 'react-markdown'
+// 21554
 type Props = {}
 
-const ConversationPage = (props: Props) => {
+const CodePage = (props: Props) => {
 	const router = useRouter()
 	const [messages, setMessages] = useState<ChatCompletionMessage[]>([])
 
@@ -42,7 +43,7 @@ const ConversationPage = (props: Props) => {
 			}
 			const newMessages = [...messages, userMessage]
 
-			const response = await axios.post('/api/conversation', { messages: newMessages })
+			const response = await axios.post('/api/code', { messages: newMessages })
 			setMessages((current) => [...current, userMessage, response.data])
 			form.reset()
 		} catch (error: any) {
@@ -55,11 +56,11 @@ const ConversationPage = (props: Props) => {
 	return (
 		<div>
 			<Heading
-				title='チャット'
-				description='最も高度なチャットモデルです。'
-				icon={MessagesSquare}
-				iconColor='text-violet-500'
-				bgColor='bg-violet-500/10'
+				title='コード'
+				description='コードの自動生成をします。'
+				icon={Code}
+				iconColor='text-green-700'
+				bgColor='bg-green-700/10'
 			/>
 			<div className='px-4 lg:px-8'>
 				<div>
@@ -76,7 +77,7 @@ const ConversationPage = (props: Props) => {
 											<Input
 												className='border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent'
 												disabled={isLoading}
-												placeholder='円の半径はどのように計算しますか？'
+												placeholder='React Hooksを使用したシンプルなトグルボタン'
 												{...field}
 											/>
 										</FormControl>
@@ -113,9 +114,21 @@ const ConversationPage = (props: Props) => {
 								)}
 							>
 								{message.role === 'user' ? <UserAvatar /> : <BotAvatar />}
-								<p className='text-sm'>
-								{message.content}
-								</p>
+								<ReactMarkdown
+									components={{
+										pre: ({ node, ...props }) => (
+											<div className='overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg'>
+												<pre {...props} />
+											</div>
+										),
+										code: ({ node, ...props }) => (
+											<code className='bg-black/10 rounded-r-lg p-1' {...props} />
+										)
+									}}
+									className='text-sm overflow-hidden leading-7'
+								>
+								{message.content || ''}
+								</ReactMarkdown>
 							</div>
 						))}
 					</div>
@@ -125,4 +138,4 @@ const ConversationPage = (props: Props) => {
 	)
 }
 
-export default ConversationPage
+export default CodePage
